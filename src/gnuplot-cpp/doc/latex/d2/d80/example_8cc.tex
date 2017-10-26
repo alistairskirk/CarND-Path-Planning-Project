@@ -1,0 +1,296 @@
+\section{example.cc File Reference}
+\label{d2/d80/example_8cc}\index{example.cc@{example.cc}}
+{\tt \#include $<$iostream$>$}\par
+{\tt \#include \char`\"{}gnuplot\_\-i.hpp\char`\"{}}\par
+\subsection*{Defines}
+\begin{CompactItemize}
+\item 
+\#define {\bf SLEEP\_\-LGTH}~2
+\item 
+\#define {\bf NPOINTS}~50
+\end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+void {\bf wait\_\-for\_\-key} ()
+\item 
+int {\bf main} (int argc, char $\ast$argv[$\,$])
+\end{CompactItemize}
+
+
+\subsection{Define Documentation}
+\index{example.cc@{example.cc}!NPOINTS@{NPOINTS}}
+\index{NPOINTS@{NPOINTS}!example.cc@{example.cc}}
+\subsubsection[{NPOINTS}]{\setlength{\rightskip}{0pt plus 5cm}\#define NPOINTS~50}\label{d2/d80/example_8cc_046c61fd31a06b2051fa0f57e626ee65}
+
+
+
+
+Definition at line 20 of file example.cc.
+
+Referenced by main().\index{example.cc@{example.cc}!SLEEP\_\-LGTH@{SLEEP\_\-LGTH}}
+\index{SLEEP\_\-LGTH@{SLEEP\_\-LGTH}!example.cc@{example.cc}}
+\subsubsection[{SLEEP\_\-LGTH}]{\setlength{\rightskip}{0pt plus 5cm}\#define SLEEP\_\-LGTH~2}\label{d2/d80/example_8cc_86c9f48acee3e4ad980ffbaacc293a1a}
+
+
+
+
+Definition at line 19 of file example.cc.
+
+\subsection{Function Documentation}
+\index{example.cc@{example.cc}!main@{main}}
+\index{main@{main}!example.cc@{example.cc}}
+\subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int main (int {\em argc}, \/  char $\ast$ {\em argv}[$\,$])}\label{d2/d80/example_8cc_0ddf1224851353fc92bfbff6f499fa97}
+
+
+
+
+Definition at line 27 of file example.cc.
+
+References Gnuplot::cmd(), NPOINTS, Gnuplot::plot\_\-equation(), Gnuplot::plot\_\-equation3d(), Gnuplot::plot\_\-image(), Gnuplot::plot\_\-slope(), Gnuplot::plot\_\-x(), Gnuplot::plot\_\-xy(), Gnuplot::plot\_\-xy\_\-err(), Gnuplot::plot\_\-xyz(), Gnuplot::replot(), Gnuplot::reset\_\-all(), Gnuplot::reset\_\-plot(), Gnuplot::savetops(), Gnuplot::set\_\-cbrange(), Gnuplot::set\_\-contour(), Gnuplot::set\_\-grid(), Gnuplot::set\_\-hidden3d(), Gnuplot::set\_\-isosamples(), Gnuplot::set\_\-legend(), Gnuplot::set\_\-pointsize(), Gnuplot::set\_\-samples(), Gnuplot::set\_\-smooth(), Gnuplot::set\_\-style(), Gnuplot::set\_\-surface(), Gnuplot::set\_\-title(), Gnuplot::set\_\-xautoscale(), Gnuplot::set\_\-xlabel(), Gnuplot::set\_\-xrange(), Gnuplot::set\_\-ylabel(), Gnuplot::set\_\-yrange(), Gnuplot::set\_\-zlabel(), Gnuplot::set\_\-zrange(), Gnuplot::showonscreen(), Gnuplot::unset\_\-grid(), Gnuplot::unset\_\-legend(), Gnuplot::unset\_\-smooth(), Gnuplot::unset\_\-surface(), Gnuplot::unset\_\-title(), and wait\_\-for\_\-key().
+
+\begin{Code}\begin{verbatim}28 {
+29     // if path-variable for gnuplot is not set, do it with:
+30     // Gnuplot::set_GNUPlotPath("C:/program files/gnuplot/bin/");
+31 
+32     // set a special standard terminal for showonscreen (normally not needed),
+33     //   e.g. Mac users who want to use x11 instead of aqua terminal:
+34     // Gnuplot::set_terminal_std("x11");
+35 
+36     cout << "*** example of gnuplot control through C++ ***" << endl << endl;
+37 
+38     //
+39     // Using the GnuplotException class
+40     //
+41     try
+42     {
+43         Gnuplot g1("lines");
+44 
+45         //
+46         // Slopes
+47         //
+48         cout << "*** plotting slopes" << endl;
+49         g1.set_title("Slopes\\nNew Line");
+50 
+51         cout << "y = x" << endl;
+52         g1.plot_slope(1.0,0.0,"y=x");
+53 
+54         cout << "y = 2*x" << endl;
+55         g1.plot_slope(2.0,0.0,"y=2x");
+56 
+57         cout << "y = -x" << endl;
+58         g1.plot_slope(-1.0,0.0,"y=-x");
+59         g1.unset_title();
+60 
+61         //
+62         // Equations
+63         //
+64         g1.reset_plot();
+65         cout << endl << endl << "*** various equations" << endl;
+66 
+67         cout << "y = sin(x)" << endl;
+68         g1.plot_equation("sin(x)","sine");
+69 
+70         cout << "y = log(x)" << endl;
+71         g1.plot_equation("log(x)","logarithm");
+72 
+73         cout << "y = sin(x) * cos(2*x)" << endl;
+74         g1.plot_equation("sin(x)*cos(2*x)","sine product");
+75 
+76         //
+77         // Styles
+78         //
+79         g1.reset_plot();
+80         cout << endl << endl << "*** showing styles" << endl;
+81 
+82         cout << "sine in points" << endl;
+83         g1.set_pointsize(0.8).set_style("points");
+84         g1.plot_equation("sin(x)","points");
+85 
+86         cout << "sine in impulses" << endl;
+87         g1.set_style("impulses");
+88         g1.plot_equation("sin(x)","impulses");
+89 
+90         cout << "sine in steps" << endl;
+91         g1.set_style("steps");
+92         g1.plot_equation("sin(x)","steps");
+93 
+94         //
+95         // Save to ps
+96         //
+97         g1.reset_all();
+98         cout << endl << endl << "*** save to ps " << endl;
+99 
+100         cout << "y = sin(x) saved to test_output.ps in working directory" << endl;
+101         g1.savetops("test_output");
+102         g1.set_style("lines").set_samples(300).set_xrange(0,5);
+103         g1.plot_equation("sin(12*x)*exp(-x)").plot_equation("exp(-x)");
+104 
+105         g1.showonscreen(); // window output
+106 
+107 
+108         //
+109         // User defined 1d, 2d and 3d point sets
+110         //
+111         std::vector<double> x, y, y2, dy, z;
+112 
+113         for (int i = 0; i < NPOINTS; i++)  // fill double arrays x, y, z
+114         {
+115             x.push_back((double)i);             // x[i] = i
+116             y.push_back((double)i * (double)i); // y[i] = i^2
+117             z.push_back( x[i]*y[i] );           // z[i] = x[i]*y[i] = i^3
+118             dy.push_back((double)i * (double)i / (double) 10); // dy[i] = i^2 / 10
+119         }
+120         y2.push_back(0.00); y2.push_back(0.78); y2.push_back(0.97); y2.push_back(0.43);
+121         y2.push_back(-0.44); y2.push_back(-0.98); y2.push_back(-0.77); y2.push_back(0.02);
+122 
+123 
+124         g1.reset_all();
+125         cout << endl << endl << "*** user-defined lists of doubles" << endl;
+126         g1.set_style("impulses").plot_x(y,"user-defined doubles");
+127 
+128         g1.reset_plot();
+129         cout << endl << endl << "*** user-defined lists of points (x,y)" << endl;
+130         g1.set_grid();
+131         g1.set_style("points").plot_xy(x,y,"user-defined points 2d");
+132 
+133         g1.reset_plot();
+134         cout << endl << endl << "*** user-defined lists of points (x,y,z)" << endl;
+135         g1.unset_grid();
+136         g1.plot_xyz(x,y,z,"user-defined points 3d");
+137 
+138         g1.reset_plot();
+139         cout << endl << endl << "*** user-defined lists of points (x,y,dy)" << endl;
+140         g1.plot_xy_err(x,y,dy,"user-defined points 2d with errorbars");
+141 
+142 
+143         //
+144         // Multiple output screens
+145         //
+146         cout << endl << endl;
+147         cout << "*** multiple output windows" << endl;
+148 
+149         g1.reset_plot();
+150         g1.set_style("lines");
+151         cout << "window 1: sin(x)" << endl;
+152         g1.set_grid().set_samples(600).set_xrange(0,300);
+153         g1.plot_equation("sin(x)+sin(x*1.1)");
+154 
+155         g1.set_xautoscale().replot();
+156 
+157         Gnuplot g2;
+158         cout << "window 2: user defined points" << endl;
+159         g2.plot_x(y2,"points");
+160         g2.set_smooth().plot_x(y2,"cspline");
+161         g2.set_smooth("bezier").plot_x(y2,"bezier");
+162         g2.unset_smooth();
+163 
+164         Gnuplot g3("lines");
+165         cout << "window 3: log(x)/x" << endl;
+166         g3.set_grid();
+167         g3.plot_equation("log(x)/x","log(x)/x");
+168 
+169         Gnuplot g4("lines");
+170         cout << "window 4: splot x*x+y*y" << endl;
+171         g4.set_zrange(0,100);
+172         g4.set_xlabel("x-axis").set_ylabel("y-axis").set_zlabel("z-axis");
+173         g4.plot_equation3d("x*x+y*y");
+174 
+175         Gnuplot g5("lines");
+176         cout << "window 5: splot with hidden3d" << endl;
+177         g5.set_isosamples(25).set_hidden3d();
+178         g5.plot_equation3d("x*y*y");
+179 
+180         Gnuplot g6("lines");
+181         cout << "window 6: splot with contour" << endl;
+182         g6.set_isosamples(60).set_contour();
+183         g6.unset_surface().plot_equation3d("sin(x)*sin(y)+4");
+184 
+185         g6.set_surface().replot();
+186 
+187         Gnuplot g7("lines");
+188         cout << "window 7: set_samples" << endl;
+189         g7.set_xrange(-30,20).set_samples(40);
+190         g7.plot_equation("besj0(x)*0.12e1").plot_equation("(x**besj0(x))-2.5");
+191 
+192         g7.set_samples(400).replot();
+193 
+194         Gnuplot g8("filledcurves");
+195         cout << "window 8: filledcurves" << endl;
+196         g8.set_legend("outside right top").set_xrange(-5,5);
+197         g8.plot_equation("x*x").plot_equation("-x*x+4");
+198 
+199         //
+200         // Plot an image
+201         //
+202         Gnuplot g9;
+203         cout << "window 9: plot_image" << endl;
+204         const int iWidth  = 255;
+205         const int iHeight = 255;
+206         g9.set_xrange(0,iWidth).set_yrange(0,iHeight).set_cbrange(0,255);
+207         g9.cmd("set palette gray");
+208         unsigned char ucPicBuf[iWidth*iHeight];
+209         // generate a greyscale image
+210         for(int iIndex = 0; iIndex < iHeight*iWidth; iIndex++)
+211         {
+212             ucPicBuf[iIndex] = iIndex%255;
+213         }
+214         g9.plot_image(ucPicBuf,iWidth,iHeight,"greyscale");
+215 
+216         g9.set_pointsize(0.6).unset_legend().plot_slope(0.8,20);
+217 
+218         //
+219         // manual control
+220         //
+221         Gnuplot g10;
+222         cout << "window 10: manual control" << endl;
+223         g10.cmd("set samples 400").cmd("plot abs(x)/2"); // either with cmd()
+224         g10 << "replot sqrt(x)" << "replot sqrt(-x)";    // or with <<
+225 
+226         wait_for_key();
+227 
+228     }
+229     catch (GnuplotException ge)
+230     {
+231         cout << ge.what() << endl;
+232     }
+233 
+234 
+235     cout << endl << "*** end of gnuplot example" << endl;
+236 
+237     return 0;
+238 }
+\end{verbatim}
+\end{Code}
+
+
+\index{example.cc@{example.cc}!wait\_\-for\_\-key@{wait\_\-for\_\-key}}
+\index{wait\_\-for\_\-key@{wait\_\-for\_\-key}!example.cc@{example.cc}}
+\subsubsection[{wait\_\-for\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}void wait\_\-for\_\-key ()}\label{d2/d80/example_8cc_621288a08ecc9633729935737256e831}
+
+
+
+
+Definition at line 242 of file example.cc.
+
+Referenced by main().
+
+\begin{Code}\begin{verbatim}243 {
+244 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)  // every keypress registered, also arrow keys
+245     cout << endl << "Press any key to continue..." << endl;
+246 
+247     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+248     _getch();
+249 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+250     cout << endl << "Press ENTER to continue..." << endl;
+251 
+252     std::cin.clear();
+253     std::cin.ignore(std::cin.rdbuf()->in_avail());
+254     std::cin.get();
+255 #endif
+256     return;
+257 }
+\end{verbatim}
+\end{Code}
+
+

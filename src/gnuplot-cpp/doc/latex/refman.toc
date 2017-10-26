@@ -1,0 +1,88 @@
+\contentsline {chapter}{\numberline {1}Class Index}{1}
+\contentsline {section}{\numberline {1.1}Class List}{1}
+\contentsline {chapter}{\numberline {2}File Index}{3}
+\contentsline {section}{\numberline {2.1}File List}{3}
+\contentsline {chapter}{\numberline {3}Class Documentation}{5}
+\contentsline {section}{\numberline {3.1}Gnuplot Class Reference}{5}
+\contentsline {subsection}{\numberline {3.1.1}Detailed Description}{8}
+\contentsline {subsection}{\numberline {3.1.2}Constructor \& Destructor Documentation}{8}
+\contentsline {subsubsection}{\numberline {3.1.2.1}Gnuplot}{8}
+\contentsline {subsubsection}{\numberline {3.1.2.2}Gnuplot}{9}
+\contentsline {subsubsection}{\numberline {3.1.2.3}Gnuplot}{9}
+\contentsline {subsubsection}{\numberline {3.1.2.4}Gnuplot}{9}
+\contentsline {subsubsection}{\numberline {3.1.2.5}$\sim $Gnuplot}{10}
+\contentsline {subsection}{\numberline {3.1.3}Member Function Documentation}{10}
+\contentsline {subsubsection}{\numberline {3.1.3.1}cmd}{10}
+\contentsline {subsubsection}{\numberline {3.1.3.2}is\_\discretionary {-}{}{}valid}{11}
+\contentsline {subsubsection}{\numberline {3.1.3.3}operator$<$$<$}{11}
+\contentsline {subsubsection}{\numberline {3.1.3.4}plot\_\discretionary {-}{}{}equation}{12}
+\contentsline {subsubsection}{\numberline {3.1.3.5}plot\_\discretionary {-}{}{}equation3d}{12}
+\contentsline {subsubsection}{\numberline {3.1.3.6}plot\_\discretionary {-}{}{}image}{13}
+\contentsline {subsubsection}{\numberline {3.1.3.7}plot\_\discretionary {-}{}{}slope}{14}
+\contentsline {subsubsection}{\numberline {3.1.3.8}plot\_\discretionary {-}{}{}x}{15}
+\contentsline {subsubsection}{\numberline {3.1.3.9}plot\_\discretionary {-}{}{}xy}{15}
+\contentsline {subsubsection}{\numberline {3.1.3.10}plot\_\discretionary {-}{}{}xy\_\discretionary {-}{}{}err}{16}
+\contentsline {subsubsection}{\numberline {3.1.3.11}plot\_\discretionary {-}{}{}xyz}{17}
+\contentsline {subsubsection}{\numberline {3.1.3.12}plotfile\_\discretionary {-}{}{}x}{17}
+\contentsline {subsubsection}{\numberline {3.1.3.13}plotfile\_\discretionary {-}{}{}xy}{18}
+\contentsline {subsubsection}{\numberline {3.1.3.14}plotfile\_\discretionary {-}{}{}xy\_\discretionary {-}{}{}err}{19}
+\contentsline {subsubsection}{\numberline {3.1.3.15}plotfile\_\discretionary {-}{}{}xyz}{20}
+\contentsline {subsubsection}{\numberline {3.1.3.16}remove\_\discretionary {-}{}{}tmpfiles}{20}
+\contentsline {subsubsection}{\numberline {3.1.3.17}replot}{21}
+\contentsline {subsubsection}{\numberline {3.1.3.18}reset\_\discretionary {-}{}{}all}{21}
+\contentsline {subsubsection}{\numberline {3.1.3.19}reset\_\discretionary {-}{}{}plot}{21}
+\contentsline {subsubsection}{\numberline {3.1.3.20}savetops}{22}
+\contentsline {subsubsection}{\numberline {3.1.3.21}set\_\discretionary {-}{}{}cbrange}{22}
+\contentsline {subsubsection}{\numberline {3.1.3.22}set\_\discretionary {-}{}{}contour}{22}
+\contentsline {subsubsection}{\numberline {3.1.3.23}set\_\discretionary {-}{}{}GNUPlotPath}{23}
+\contentsline {subsubsection}{\numberline {3.1.3.24}set\_\discretionary {-}{}{}grid}{23}
+\contentsline {subsubsection}{\numberline {3.1.3.25}set\_\discretionary {-}{}{}hidden3d}{23}
+\contentsline {subsubsection}{\numberline {3.1.3.26}set\_\discretionary {-}{}{}isosamples}{24}
+\contentsline {subsubsection}{\numberline {3.1.3.27}set\_\discretionary {-}{}{}legend}{24}
+\contentsline {subsubsection}{\numberline {3.1.3.28}set\_\discretionary {-}{}{}multiplot}{24}
+\contentsline {subsubsection}{\numberline {3.1.3.29}set\_\discretionary {-}{}{}pointsize}{25}
+\contentsline {subsubsection}{\numberline {3.1.3.30}set\_\discretionary {-}{}{}samples}{25}
+\contentsline {subsubsection}{\numberline {3.1.3.31}set\_\discretionary {-}{}{}smooth}{25}
+\contentsline {subsubsection}{\numberline {3.1.3.32}set\_\discretionary {-}{}{}style}{26}
+\contentsline {subsubsection}{\numberline {3.1.3.33}set\_\discretionary {-}{}{}surface}{27}
+\contentsline {subsubsection}{\numberline {3.1.3.34}set\_\discretionary {-}{}{}terminal\_\discretionary {-}{}{}std}{27}
+\contentsline {subsubsection}{\numberline {3.1.3.35}set\_\discretionary {-}{}{}title}{27}
+\contentsline {subsubsection}{\numberline {3.1.3.36}set\_\discretionary {-}{}{}xautoscale}{28}
+\contentsline {subsubsection}{\numberline {3.1.3.37}set\_\discretionary {-}{}{}xlabel}{28}
+\contentsline {subsubsection}{\numberline {3.1.3.38}set\_\discretionary {-}{}{}xlogscale}{29}
+\contentsline {subsubsection}{\numberline {3.1.3.39}set\_\discretionary {-}{}{}xrange}{29}
+\contentsline {subsubsection}{\numberline {3.1.3.40}set\_\discretionary {-}{}{}yautoscale}{29}
+\contentsline {subsubsection}{\numberline {3.1.3.41}set\_\discretionary {-}{}{}ylabel}{30}
+\contentsline {subsubsection}{\numberline {3.1.3.42}set\_\discretionary {-}{}{}ylogscale}{30}
+\contentsline {subsubsection}{\numberline {3.1.3.43}set\_\discretionary {-}{}{}yrange}{30}
+\contentsline {subsubsection}{\numberline {3.1.3.44}set\_\discretionary {-}{}{}zautoscale}{30}
+\contentsline {subsubsection}{\numberline {3.1.3.45}set\_\discretionary {-}{}{}zlabel}{31}
+\contentsline {subsubsection}{\numberline {3.1.3.46}set\_\discretionary {-}{}{}zlogscale}{31}
+\contentsline {subsubsection}{\numberline {3.1.3.47}set\_\discretionary {-}{}{}zrange}{31}
+\contentsline {subsubsection}{\numberline {3.1.3.48}showonscreen}{32}
+\contentsline {subsubsection}{\numberline {3.1.3.49}unset\_\discretionary {-}{}{}contour}{32}
+\contentsline {subsubsection}{\numberline {3.1.3.50}unset\_\discretionary {-}{}{}grid}{32}
+\contentsline {subsubsection}{\numberline {3.1.3.51}unset\_\discretionary {-}{}{}hidden3d}{33}
+\contentsline {subsubsection}{\numberline {3.1.3.52}unset\_\discretionary {-}{}{}legend}{33}
+\contentsline {subsubsection}{\numberline {3.1.3.53}unset\_\discretionary {-}{}{}multiplot}{33}
+\contentsline {subsubsection}{\numberline {3.1.3.54}unset\_\discretionary {-}{}{}smooth}{34}
+\contentsline {subsubsection}{\numberline {3.1.3.55}unset\_\discretionary {-}{}{}surface}{34}
+\contentsline {subsubsection}{\numberline {3.1.3.56}unset\_\discretionary {-}{}{}title}{34}
+\contentsline {subsubsection}{\numberline {3.1.3.57}unset\_\discretionary {-}{}{}xlogscale}{35}
+\contentsline {subsubsection}{\numberline {3.1.3.58}unset\_\discretionary {-}{}{}ylogscale}{35}
+\contentsline {subsubsection}{\numberline {3.1.3.59}unset\_\discretionary {-}{}{}zlogscale}{35}
+\contentsline {section}{\numberline {3.2}GnuplotException Class Reference}{36}
+\contentsline {subsection}{\numberline {3.2.1}Detailed Description}{36}
+\contentsline {subsection}{\numberline {3.2.2}Constructor \& Destructor Documentation}{36}
+\contentsline {subsubsection}{\numberline {3.2.2.1}GnuplotException}{36}
+\contentsline {chapter}{\numberline {4}File Documentation}{37}
+\contentsline {section}{\numberline {4.1}example.cc File Reference}{37}
+\contentsline {subsection}{\numberline {4.1.1}Define Documentation}{37}
+\contentsline {subsubsection}{\numberline {4.1.1.1}NPOINTS}{37}
+\contentsline {subsubsection}{\numberline {4.1.1.2}SLEEP\_\discretionary {-}{}{}LGTH}{37}
+\contentsline {subsection}{\numberline {4.1.2}Function Documentation}{37}
+\contentsline {subsubsection}{\numberline {4.1.2.1}main}{37}
+\contentsline {subsubsection}{\numberline {4.1.2.2}wait\_\discretionary {-}{}{}for\_\discretionary {-}{}{}key}{41}
+\contentsline {section}{\numberline {4.2}gnuplot\_\discretionary {-}{}{}i.hpp File Reference}{42}
+\contentsline {subsection}{\numberline {4.2.1}Function Documentation}{42}
+\contentsline {subsubsection}{\numberline {4.2.1.1}stringtok}{42}

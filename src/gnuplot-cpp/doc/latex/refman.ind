@@ -1,0 +1,241 @@
+\begin{theindex}
+
+  \item {$\sim$Gnuplot}
+    \subitem {Gnuplot}, 10
+
+  \indexspace
+
+  \item {cmd}
+    \subitem {Gnuplot}, 10
+
+  \indexspace
+
+  \item {example.cc}, 37
+    \subitem {main}, 37
+    \subitem {NPOINTS}, 37
+    \subitem {SLEEP\_\-LGTH}, 37
+    \subitem {wait\_\-for\_\-key}, 41
+
+  \indexspace
+
+  \item {Gnuplot}, 5
+    \subitem {$\sim$Gnuplot}, 10
+    \subitem {cmd}, 10
+    \subitem {Gnuplot}, 8, 9
+    \subitem {is\_\-valid}, 11
+    \subitem {operator$<$$<$}, 11
+    \subitem {plot\_\-equation}, 12
+    \subitem {plot\_\-equation3d}, 12
+    \subitem {plot\_\-image}, 13
+    \subitem {plot\_\-slope}, 14
+    \subitem {plot\_\-x}, 14
+    \subitem {plot\_\-xy}, 15
+    \subitem {plot\_\-xy\_\-err}, 16
+    \subitem {plot\_\-xyz}, 17
+    \subitem {plotfile\_\-x}, 17
+    \subitem {plotfile\_\-xy}, 18
+    \subitem {plotfile\_\-xy\_\-err}, 19
+    \subitem {plotfile\_\-xyz}, 19
+    \subitem {remove\_\-tmpfiles}, 20
+    \subitem {replot}, 20
+    \subitem {reset\_\-all}, 21
+    \subitem {reset\_\-plot}, 21
+    \subitem {savetops}, 21
+    \subitem {set\_\-cbrange}, 22
+    \subitem {set\_\-contour}, 22
+    \subitem {set\_\-GNUPlotPath}, 23
+    \subitem {set\_\-grid}, 23
+    \subitem {set\_\-hidden3d}, 23
+    \subitem {set\_\-isosamples}, 24
+    \subitem {set\_\-legend}, 24
+    \subitem {set\_\-multiplot}, 24
+    \subitem {set\_\-pointsize}, 25
+    \subitem {set\_\-samples}, 25
+    \subitem {set\_\-smooth}, 25
+    \subitem {set\_\-style}, 26
+    \subitem {set\_\-surface}, 27
+    \subitem {set\_\-terminal\_\-std}, 27
+    \subitem {set\_\-title}, 27
+    \subitem {set\_\-xautoscale}, 28
+    \subitem {set\_\-xlabel}, 28
+    \subitem {set\_\-xlogscale}, 28
+    \subitem {set\_\-xrange}, 29
+    \subitem {set\_\-yautoscale}, 29
+    \subitem {set\_\-ylabel}, 29
+    \subitem {set\_\-ylogscale}, 30
+    \subitem {set\_\-yrange}, 30
+    \subitem {set\_\-zautoscale}, 30
+    \subitem {set\_\-zlabel}, 31
+    \subitem {set\_\-zlogscale}, 31
+    \subitem {set\_\-zrange}, 31
+    \subitem {showonscreen}, 32
+    \subitem {unset\_\-contour}, 32
+    \subitem {unset\_\-grid}, 32
+    \subitem {unset\_\-hidden3d}, 32
+    \subitem {unset\_\-legend}, 33
+    \subitem {unset\_\-multiplot}, 33
+    \subitem {unset\_\-smooth}, 33
+    \subitem {unset\_\-surface}, 34
+    \subitem {unset\_\-title}, 34
+    \subitem {unset\_\-xlogscale}, 34
+    \subitem {unset\_\-ylogscale}, 35
+    \subitem {unset\_\-zlogscale}, 35
+  \item {gnuplot\_\-i.hpp}, 42
+    \subitem {stringtok}, 42
+  \item {GnuplotException}, 36
+    \subitem {GnuplotException}, 36
+
+  \indexspace
+
+  \item {is\_\-valid}
+    \subitem {Gnuplot}, 11
+
+  \indexspace
+
+  \item {main}
+    \subitem {example.cc}, 37
+
+  \indexspace
+
+  \item {NPOINTS}
+    \subitem {example.cc}, 37
+
+  \indexspace
+
+  \item {operator$<$$<$}
+    \subitem {Gnuplot}, 11
+
+  \indexspace
+
+  \item {plot\_\-equation}
+    \subitem {Gnuplot}, 12
+  \item {plot\_\-equation3d}
+    \subitem {Gnuplot}, 12
+  \item {plot\_\-image}
+    \subitem {Gnuplot}, 13
+  \item {plot\_\-slope}
+    \subitem {Gnuplot}, 14
+  \item {plot\_\-x}
+    \subitem {Gnuplot}, 14
+  \item {plot\_\-xy}
+    \subitem {Gnuplot}, 15
+  \item {plot\_\-xy\_\-err}
+    \subitem {Gnuplot}, 16
+  \item {plot\_\-xyz}
+    \subitem {Gnuplot}, 17
+  \item {plotfile\_\-x}
+    \subitem {Gnuplot}, 17
+  \item {plotfile\_\-xy}
+    \subitem {Gnuplot}, 18
+  \item {plotfile\_\-xy\_\-err}
+    \subitem {Gnuplot}, 19
+  \item {plotfile\_\-xyz}
+    \subitem {Gnuplot}, 19
+
+  \indexspace
+
+  \item {remove\_\-tmpfiles}
+    \subitem {Gnuplot}, 20
+  \item {replot}
+    \subitem {Gnuplot}, 20
+  \item {reset\_\-all}
+    \subitem {Gnuplot}, 21
+  \item {reset\_\-plot}
+    \subitem {Gnuplot}, 21
+
+  \indexspace
+
+  \item {savetops}
+    \subitem {Gnuplot}, 21
+  \item {set\_\-cbrange}
+    \subitem {Gnuplot}, 22
+  \item {set\_\-contour}
+    \subitem {Gnuplot}, 22
+  \item {set\_\-GNUPlotPath}
+    \subitem {Gnuplot}, 23
+  \item {set\_\-grid}
+    \subitem {Gnuplot}, 23
+  \item {set\_\-hidden3d}
+    \subitem {Gnuplot}, 23
+  \item {set\_\-isosamples}
+    \subitem {Gnuplot}, 24
+  \item {set\_\-legend}
+    \subitem {Gnuplot}, 24
+  \item {set\_\-multiplot}
+    \subitem {Gnuplot}, 24
+  \item {set\_\-pointsize}
+    \subitem {Gnuplot}, 25
+  \item {set\_\-samples}
+    \subitem {Gnuplot}, 25
+  \item {set\_\-smooth}
+    \subitem {Gnuplot}, 25
+  \item {set\_\-style}
+    \subitem {Gnuplot}, 26
+  \item {set\_\-surface}
+    \subitem {Gnuplot}, 27
+  \item {set\_\-terminal\_\-std}
+    \subitem {Gnuplot}, 27
+  \item {set\_\-title}
+    \subitem {Gnuplot}, 27
+  \item {set\_\-xautoscale}
+    \subitem {Gnuplot}, 28
+  \item {set\_\-xlabel}
+    \subitem {Gnuplot}, 28
+  \item {set\_\-xlogscale}
+    \subitem {Gnuplot}, 28
+  \item {set\_\-xrange}
+    \subitem {Gnuplot}, 29
+  \item {set\_\-yautoscale}
+    \subitem {Gnuplot}, 29
+  \item {set\_\-ylabel}
+    \subitem {Gnuplot}, 29
+  \item {set\_\-ylogscale}
+    \subitem {Gnuplot}, 30
+  \item {set\_\-yrange}
+    \subitem {Gnuplot}, 30
+  \item {set\_\-zautoscale}
+    \subitem {Gnuplot}, 30
+  \item {set\_\-zlabel}
+    \subitem {Gnuplot}, 31
+  \item {set\_\-zlogscale}
+    \subitem {Gnuplot}, 31
+  \item {set\_\-zrange}
+    \subitem {Gnuplot}, 31
+  \item {showonscreen}
+    \subitem {Gnuplot}, 32
+  \item {SLEEP\_\-LGTH}
+    \subitem {example.cc}, 37
+  \item {stringtok}
+    \subitem {gnuplot\_\-i.hpp}, 42
+
+  \indexspace
+
+  \item {unset\_\-contour}
+    \subitem {Gnuplot}, 32
+  \item {unset\_\-grid}
+    \subitem {Gnuplot}, 32
+  \item {unset\_\-hidden3d}
+    \subitem {Gnuplot}, 32
+  \item {unset\_\-legend}
+    \subitem {Gnuplot}, 33
+  \item {unset\_\-multiplot}
+    \subitem {Gnuplot}, 33
+  \item {unset\_\-smooth}
+    \subitem {Gnuplot}, 33
+  \item {unset\_\-surface}
+    \subitem {Gnuplot}, 34
+  \item {unset\_\-title}
+    \subitem {Gnuplot}, 34
+  \item {unset\_\-xlogscale}
+    \subitem {Gnuplot}, 34
+  \item {unset\_\-ylogscale}
+    \subitem {Gnuplot}, 35
+  \item {unset\_\-zlogscale}
+    \subitem {Gnuplot}, 35
+
+  \indexspace
+
+  \item {wait\_\-for\_\-key}
+    \subitem {example.cc}, 41
+
+\end{theindex}

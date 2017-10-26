@@ -1,0 +1,69 @@
+\section{gnuplot\_\-i.hpp File Reference}
+\label{d1/dd8/gnuplot__i_8hpp}\index{gnuplot\_\-i.hpp@{gnuplot\_\-i.hpp}}
+{\tt \#include $<$iostream$>$}\par
+{\tt \#include $<$string$>$}\par
+{\tt \#include $<$vector$>$}\par
+{\tt \#include $<$fstream$>$}\par
+{\tt \#include $<$sstream$>$}\par
+{\tt \#include $<$stdexcept$>$}\par
+{\tt \#include $<$cstdio$>$}\par
+{\tt \#include $<$cstdlib$>$}\par
+{\tt \#include $<$list$>$}\par
+\subsection*{Classes}
+\begin{CompactItemize}
+\item 
+class {\bf GnuplotException}
+\begin{CompactList}\small\item\em A C++ interface to gnuplot. \item\end{CompactList}\item 
+class {\bf Gnuplot}
+\end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+{\footnotesize template$<$typename Container $>$ }\\void {\bf stringtok} (Container \&container, std::string const \&in, const char $\ast$const delimiters=\char`\"{} $\backslash$t$\backslash$n\char`\"{})
+\end{CompactItemize}
+
+
+\subsection{Function Documentation}
+\index{gnuplot\_\-i.hpp@{gnuplot\_\-i.hpp}!stringtok@{stringtok}}
+\index{stringtok@{stringtok}!gnuplot_i.hpp@{gnuplot\_\-i.hpp}}
+\subsubsection[{stringtok}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Container $>$ void stringtok (Container \& {\em container}, \/  std::string const \& {\em in}, \/  const char $\ast$const  {\em delimiters} = {\tt \char`\"{}~$\backslash$t$\backslash$n\char`\"{}})\hspace{0.3cm}{\tt  [inline]}}\label{d1/dd8/gnuplot__i_8hpp_8dce6465408cd481ab4a9a7bf50bb6b4}
+
+
+
+
+Definition at line 905 of file gnuplot\_\-i.hpp.
+
+\begin{Code}\begin{verbatim}908 {
+909     const std::string::size_type len = in.length();
+910           std::string::size_type i = 0;
+911 
+912     while ( i < len )
+913     {
+914         // eat leading whitespace
+915         i = in.find_first_not_of (delimiters, i);
+916 
+917         if (i == std::string::npos)
+918             return;   // nothing left but white space
+919 
+920         // find the end of the token
+921         std::string::size_type j = in.find_first_of (delimiters, i);
+922 
+923         // push token
+924         if (j == std::string::npos)
+925         {
+926             container.push_back (in.substr(i));
+927             return;
+928         }
+929         else
+930             container.push_back (in.substr(i, j-i));
+931 
+932         // set up for next loop
+933         i = j + 1;
+934     }
+935 
+936     return;
+937 }
+\end{verbatim}
+\end{Code}
+
+
