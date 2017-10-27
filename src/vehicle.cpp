@@ -90,7 +90,7 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 	
 	// Iterate through the available states and calculate other car trajectories and costs for that state
 	for (auto &i : states) {
-		cout << "state: " << i << endl;
+		//cout << "state: " << i << endl;
 		//cout << "begin forloop" << endl;
 		map<int, vector < vector<double> > > predictions_copy;
 		predictions_copy.insert(predictions.begin(), predictions.end());
@@ -98,11 +98,12 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 		if (predictions_copy.size() > 0) // cost calculations will only work if predictions exist :(
 		{
 			vector<Vehicle::snapshot> trajectory = this->_trajectory_for_state(i, predictions_copy, 5);
-
+						/*
 			//check that the trajectories match the expected state
 			for (auto snap : trajectory) {
 				cout << "State: " << snap.state << " at s: " << snap.s<< " in lane: " << snap.lane << endl;
 			}
+			*/
 
 			Cost_Functions cf;
 			cost = cf.calculate_cost(*this, trajectory, predictions);
@@ -127,6 +128,8 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 		cout << i.first << " " << i.second << endl;
 	}
 	
+	//For KL for debug
+	//state = "KL";
 	
 	// TODO: Select state with minimum cost
 	cout << "chosen state: " << state << " at cost: " << mincost << endl;

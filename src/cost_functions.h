@@ -28,14 +28,16 @@ public:
 
 	// priority levels for costs
 	int const COLLISION = pow(10, 6);
-	int const DANGER = 3 * pow(10, 5);
+	int const DANGER = 4 * pow(10, 5);
 	int const REACH_GOAL = pow(10, 5);
-	int const COMFORT = pow(10, 4);
+	int const COMFORT = pow(12, 4);
 	int const EFFICIENCY = pow(10, 3);
 
 	double const DESIRED_BUFFER = 1.5; // Number of timesteps
 
-	int const PLANNING_HORIZON = 2;
+	double const CAR_LENGTH = 5; // assume other vehicles are 5 m long, s is from back of car
+
+	int const PLANNING_HORIZON = 3;
 
 	double calculate_cost(Vehicle vehicle, vector<Vehicle::snapshot> trajectory,
 		map<int, vector < vector<double> > > predictions);

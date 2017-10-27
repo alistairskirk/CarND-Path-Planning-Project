@@ -303,7 +303,7 @@ int main() {
 
 			//Ego Car stats update
 			ego.s = car_s;
-			ego.s -= 17;
+			ego.s -= 17; // This calibration is needed as it appears the car's S data is offset
 
 			//cout << "ego stats:\n" << ego.display() << endl;	
 			
@@ -395,60 +395,7 @@ int main() {
 			ego.v = ego.v + ego.a*0.02;
 
 			// Print out car status
-			cout << "ego stats: " << ego.display() << endl;
-			
-			/*
-			// Adjust target speed in lane
-			for (int i = 0;i < sensor_fusion.size();i++)
-			{
-				//detect cars ahead in current lane
-				float d = sensor_fusion[i][6];
-				if (d< (2 + 4 * ego.lane + 2) && d >(2 + 4 * ego.lane - 2))
-				{
-					double vx = sensor_fusion[i][3];
-					double vy = sensor_fusion[i][4];
-					double check_speed = sqrt(vx*vx + vy*vy); // assume m/s, assumes driving straight in lane
-					double check_car_s = sensor_fusion[i][5]; // current check car s
-
-					check_car_s += ((double)prev_size*0.02*check_speed); // predicting check car position in future
-					// Ensure s values are greater than the minimum gap for the car ahead
-					if ((check_car_s > car_s) && ((check_car_s - car_s) < ego.preferred_buffer))
-					{
-						// Logic here dictates behaviour if car in lane ahead and gap is below threshold
-						// Should also flag to change lanes if speed below minimum
-						//cout << "Too Close!" << endl;
-						ego.target_speed = check_speed;
-						too_close = true;
-					}
-				}
-				// detect cars in adjacent lanes?
-			}
-
-			if (too_close)
-			{
-				if (ego.v > ego.target_speed)
-				{
-					ego.v -= ego.max_acceleration*0.02; // slow down until below target speed using max acc.
-				}
-			}
-			else //otherwise speed up
-			{
-				if (ego.v < SPEED_LIMIT)
-				{
-					ego.v += ego.max_acceleration*0.02; // speed up using max acc.
-					//cout << "increasing speed" << endl;
-				}
-			}
-
-			
-			if (ego.target_speed < SPEED_LIMIT)
-			{
-				prep_lc = true;
-			}
-			*/
-
-			//cout << "target speed: " << target_speed << endl;
-			
+			//cout << "ego stats: " << ego.display() << endl;					
 
           	json msgJson;
 
@@ -504,8 +451,10 @@ int main() {
 				ptsy.push_back(ref_y);
 			}
 
-			// Use Frenet Coordinates and transform to X,Y, spaced at specified intervals and add to sparse point list, lane as specified before
-			int s_space = 50; // spacing between points in meters. 20 appears to work best for staying inside the lane
+			// Use Frenet Coordinates and transform to X,Y, spaced at specified intervals and add to sparse point list
+			// Init spacing between spline points in meters. Adjusts agressiveness of lane changes proportional to speed, smoother at higher speeds.
+			int s_space = 30 + (1-(SPEED_LIMIT - ego.v)/SPEED_LIMIT)*25; 
+			
 
 			// If we must prepare a lane change, calculate trajectories with cost functions and select best trajectory
 			/*if (prep_lc)
@@ -554,7 +503,7 @@ int main() {
 			}
 
 			//Calculate breaking up the spline to travel at reference velocity:
-			double target_x = 30.0; // Horizon value looking ahead 30 m on trajectory to linearize and convert to required coords
+			double target_x = s_space; // Horizon value looking ahead 30-50 m on trajectory to linearize and convert to required coords
 			double target_y = s(target_x); // Corresponding y value at the horizon point.
 			double target_dist = sqrt(target_x*target_x + target_y*target_y); //Linearize by taking the magnitude
 
@@ -588,50 +537,8 @@ int main() {
 				next_x_vals.push_back(x_point);
 				next_y_vals.push_back(y_point);
 
-			}
+			}			
 			
-			//Diagnostics:
-			//cout << "Car Data: x, y: " << car_x << ", " << car_y << "\ns, d:" << car_s << ", " << car_d << "\nyaw, v: " << car_yaw << " " << car_speed << "\n";
-			//cout << "\nSensor Fusion Data: " << sensor_fusion;
-
-			/*
-			double pos_x;
-			double pos_y;
-			double angle;
-			int path_size = previous_path_x.size();
-
-			for (int i = 0; i < path_size; i++)
-			{
-				next_x_vals.push_back(previous_path_x[i]);
-				next_y_vals.push_back(previous_path_y[i]);
-			}
-
-			if (path_size == 0)
-			{
-				pos_x = car_x;
-				pos_y = car_y;
-				angle = deg2rad(car_yaw);
-			}
-			else
-			{
-				pos_x = previous_path_x[path_size - 1];
-				pos_y = previous_path_y[path_size - 1];
-
-				double pos_x2 = previous_path_x[path_size - 2];
-				double pos_y2 = previous_path_y[path_size - 2];
-				angle = atan2(pos_y - pos_y2, pos_x - pos_x2);
-			}
-
-			double dist_inc = 0.5;
-			for (int i = 0; i < 50 - path_size; i++)
-			{
-				next_x_vals.push_back(pos_x + (dist_inc)*cos(angle + (i + 1)*(pi() / 100)));
-				next_y_vals.push_back(pos_y + (dist_inc)*sin(angle + (i + 1)*(pi() / 100)));
-				pos_x += (dist_inc)*cos(angle + (i + 1)*(pi() / 100));
-				pos_y += (dist_inc)*sin(angle + (i + 1)*(pi() / 100));
-			}
-			*/
-
           	// Define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;				

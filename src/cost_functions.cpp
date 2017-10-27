@@ -39,7 +39,7 @@ double Cost_Functions::calculate_cost(Vehicle vehicle, vector<Vehicle::snapshot>
 	temp_cost = buffer_cost(trajectory, predictions, data);
 	cout << "buffer cost:         " << temp_cost << endl;
 	tot_cost += temp_cost;
-
+	
 	return tot_cost;
 }
 
@@ -98,10 +98,10 @@ double Cost_Functions::buffer_cost(vector<Vehicle::snapshot> trajectory,
 	map<int, vector < vector<double> > > predictions, Cost_Functions::TrajectoryData data) {
 	/**/
 	double this_cost = 0.0;
-	cout << "closest approach: " << data.closest_approach << endl;  
+	//cout << "closest approach: " << data.closest_approach << endl;  
 	if (data.closest_approach == 0.0) { this_cost = 10 * DANGER; }
 	double t_away = data.closest_approach / data.avg_speed;
-	cout << "t_away: " << t_away << endl;
+	//cout << "t_away: " << t_away << endl;
 	if (t_away > DESIRED_BUFFER) { this_cost = 0.0; }
 	else {
 		double mult = 1.0 - pow((t_away / DESIRED_BUFFER), 2);
@@ -132,10 +132,14 @@ Cost_Functions::TrajectoryData Cost_Functions::get_helper_data(Vehicle vehicle, 
 	//cout << "goal_lane and last lane: " << vehicle.goal_lane << " " << last.lane << endl;
 	//cout << "end lanes from goal: " << data.end_lanes_from_goal << endl;
 
-	double dt = trajectory.size()*.167; // Calibrated with set max speed in simulator, 0.167? should understand the physics of this.
+	double dt = trajectory.size()-1; // Calibrated with set max speed in simulator, 0.167? should understand the physics of this, affected by other lengths and buffers
 
 	data.proposed_lane = first.lane;
-	cout << "checking proposed lane: " << data.proposed_lane << " for state: " << first.state << endl;
+	// Need to clarify proposed lane for preparing lane change to improve cost function performance
+	//if (first.state == "PLCR")	{data.proposed_lane += 1; }
+	//else if (first.state == "PLCL") { data.proposed_lane -= 1; }
+	
+	//cout << "checking proposed lane: " << data.proposed_lane << " for state: " << first.state << endl;
 	data.avg_speed = (last.s - current_snap.s) / dt;
 	
 	// Initialize collision variables
@@ -182,10 +186,10 @@ Cost_Functions::TrajectoryData Cost_Functions::get_helper_data(Vehicle vehicle, 
 
 				double v_target = s_now - s_previous;
 				if (s_previous < _s) {  //if he was behind ego
-					if (s_now >= _s) { vehicle_collides = true; }  //then if he is now in front (collision happened)
+					if (s_now >= (_s-CAR_LENGTH)) { vehicle_collides = true; }  //then if he is now in front (collision happened)
 				}
 				if (s_previous > _s) {  //if he was in front
-					if (s_now <= _s) { vehicle_collides = true; } //then if he is now behind, collision happened
+					if (s_now <= (_s+CAR_LENGTH)) { vehicle_collides = true; } //then if he is now behind, collision happened
 				}
 				if (s_previous == _s) {  //if you are in the same space he was
 					if (v_target <= _v) { vehicle_collides = true; } //then if he was going slower than you, collision happened
@@ -193,7 +197,7 @@ Cost_Functions::TrajectoryData Cost_Functions::get_helper_data(Vehicle vehicle, 
 
 				//update data struct with collision
 				if (vehicle_collides) {
-					cout << "COLLISION at " << counter << " in lane: " << pred[counter][0] << " by carid: " << car.first << endl;
+					//cout << "COLLISION at " << counter << " in lane: " << pred[counter][0] << " by carid: " << car.first << endl;
 					data.collides = true;
 					data.collides_at = counter;
 				}				
@@ -201,7 +205,7 @@ Cost_Functions::TrajectoryData Cost_Functions::get_helper_data(Vehicle vehicle, 
 				double dist = abs(s_now - _s);				
 				
 				if (dist < data.closest_approach) { 
-					cout << "dist: " << dist << endl;
+					//cout << "dist: " << dist << endl;
 					data.closest_approach = dist;
 				}
 			}

@@ -35,7 +35,7 @@ public:
 
 	int id = -1; // car id
 
-	int preferred_buffer = 30; // impacts "keep lane" behavior.
+	int preferred_buffer = 20; // impacts "keep lane" behavior.
 
 	int lane;
 
