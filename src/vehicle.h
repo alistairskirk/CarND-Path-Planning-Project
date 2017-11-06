@@ -31,7 +31,7 @@ public:
 		string state;
 	};
 
-	int L = 1;
+	int L = 10; // assumed car length
 
 	int id = -1; // car id
 
@@ -53,9 +53,11 @@ public:
 
 	int goal_lane;
 
-	int goal_s;
+	int goal_s;	
 
-	string state;	
+	string state;		
+	
+	string dlog;	
 
 	/**
 	* Constructor
@@ -69,7 +71,7 @@ public:
 
 	void update_state(map<int, vector <vector<double> > > predictions);
 
-	vector<Vehicle::snapshot> _trajectory_for_state(string, map<int, vector < vector<double> > >, int);
+	vector<Vehicle::snapshot> _trajectory_for_state(string, map<int, vector < vector<double> > >&, int);
 
 	snapshot create_snapshot();
 

@@ -17,13 +17,14 @@ Vehicle::Vehicle(int lane, double s, double v, double a) {
 	this->v = v;
 	this->a = a;
 	state = "CS";
-	max_acceleration = -1;
-
+	max_acceleration = -1;	
 }
 
 Vehicle::~Vehicle() {}
 
 void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
+	ostringstream oss;
+			
 	/*
 	Updates the "state" of the vehicle by assigning one of the
 	following values to 'self.state':
@@ -60,8 +61,8 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 
 	// Tie into trajectory planning and cost functions, set state
 
-	//state = "KL"; // this is an example of how you change state.
-
+	// state = "KL"; // this is an example of how you change state.
+	
 	// Initialize the possible states
 	vector< string> states = { "KL", "LCL", "LCR", "PLCL", "PLCR" };
 
@@ -98,15 +99,22 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 		if (predictions_copy.size() > 0) // cost calculations will only work if predictions exist :(
 		{
 			vector<Vehicle::snapshot> trajectory = this->_trajectory_for_state(i, predictions_copy, 5);
-						/*
+			
+			vector<double> traj_x;
+			vector<double> traj_y;
+			
 			//check that the trajectories match the expected state
-			for (auto snap : trajectory) {
-				cout << "State: " << snap.state << " at s: " << snap.s<< " in lane: " << snap.lane << endl;
-			}
-			*/
+			if ((i == "LCR") | (i == "LCL")) {
+				for (auto snap : trajectory) {
+					//cout << "State: " << snap.state << " at s: " << snap.s<< " in lane: " << snap.lane << endl;				
 
+				}
+			}
+			
 			Cost_Functions cf;
 			cost = cf.calculate_cost(*this, trajectory, predictions);
+			dlog.append(cf.dlog);
+
 		}
 		
 		//cout << "cost" << cost<< " for state " << i<< endl;
@@ -115,31 +123,35 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 		//cout << "states.size " << states.size() << endl;		
 	}
 
-	double mincost = 1000000;
+	double mincost = pow(10,9);
 	state = "KL";
 
 	// Print costs map for debug
-	cout << "costs map: " << endl;
+	oss << "costs map: " << endl;
 	for (auto &i : costs) {
 		if (i.second < mincost) {
 			mincost = i.second;
 			state = i.first;
 		}
+		oss << i.first << " " << i.second << endl;
 		cout << i.first << " " << i.second << endl;
 	}
 	
 	//For KL for debug
 	//state = "KL";
+			
+	//Selected state with minimum cost
+	oss << "chosen state: " << state << " at cost: " << mincost << endl;
+	cout << "chosen state: " << state << " at cost: " << mincost << endl << endl;
 	
-	// TODO: Select state with minimum cost
-	cout << "chosen state: " << state << " at cost: " << mincost << endl;
+	// if all costs are zero or equal, default is keep lane.
 	
-	// if all costs are zero, default is keep lane.
-	
+	//dlog.append(oss.str());
+	oss.clear();
 
 }
 
-vector<Vehicle::snapshot> Vehicle::_trajectory_for_state(string state, map<int, vector < vector<double> > > predictions, int horizon = 5) {
+vector<Vehicle::snapshot> Vehicle::_trajectory_for_state(string state, map<int, vector < vector<double> > > &predictions, int horizon = 5) {
 	// return a vector of snapshots for the given state, other vehicle predictions, and horizon
 	//cout << " trajectory for state begin" << endl;
 	// remember current state
@@ -152,25 +164,34 @@ vector<Vehicle::snapshot> Vehicle::_trajectory_for_state(string state, map<int, 
 	vector<Vehicle::snapshot> trajectory;
 	trajectory.push_back(start_snap);
 
+	/*for (auto car : predictions) 
+	{
+		std::cout << "prior to remove carid: " << car.first << endl;
+		for (auto pred : car.second) {
+			cout << "		lane: " << pred[0] << " at s : " << pred[1] << endl;
+		}
+	}*/
+
 	//cout << "begin iterate" << endl;
 	// interate to the horizon and add states to trajectory vector
 	for (int i = 0; i < horizon; i++)
 	{
-		this->restore_state_from_snapshot(start_snap); // this overwrites the increment!?
+		//need to remove first prediction for each vehicle
+			
+		this->lane = start_snap.lane;
 		this->state = state;
-		this->realize_state(predictions);
-		//assert check for lanes inside lines?
-		this->increment(i+1); // this doesn't work if you restore above?
+		this->realize_state(predictions); 
+		
+		this->increment(1); 
 		trajectory.push_back(this->create_snapshot());
 
-		//need to remove first prediction for each vehicle
-		//cout << "begin remove first pred list of size: " << predictions.size() <<endl;
-
-		for (auto car : predictions)
+		//cout << "begin remove first pred list of size: " << predictions.size() << " at horizon " << i << endl;
+		for (auto car = predictions.begin(); car != predictions.end();)
 		{
-			car.second.erase(car.second.begin()); //Erasing the first prediction vector for this car
-			//std::cout <<"carid: "<< car.first << " in lane: " << car.second[0][0] << " at s:  " << car.second[0][1] << "\n";
+			car->second.erase(car->second.begin()); //Erasing the first prediction vector for this car
+			car++;
 		}
+
 	}
 	//cout << "call restore" << endl;
 	//restore state from snapshot
@@ -216,8 +237,9 @@ string Vehicle::display() {
 
 void Vehicle::increment(int dt) {
 
-	this->s += this->v * dt;
-	this->v += this->a * dt;
+	this->s += this->v * dt; 
+	this->v += this->a * dt; 
+	
 }
 
 vector<double> Vehicle::state_at(int t) {
@@ -233,7 +255,7 @@ vector<double> Vehicle::state_at(int t) {
 bool Vehicle::collides_with(Vehicle other, int at_time) {
 
 	/*
-	Simple collision detection. Can enhance with buffer radius
+	Simple collision detection. Unused
 	*/
 	vector<double> check1 = state_at(at_time);
 	vector<double> check2 = other.state_at(at_time);
@@ -241,6 +263,7 @@ bool Vehicle::collides_with(Vehicle other, int at_time) {
 }
 
 Vehicle::collider Vehicle::will_collide_with(Vehicle other, int timesteps) {
+	//Unused
 
 	Vehicle::collider collider_temp;
 	collider_temp.collision = false;
@@ -301,7 +324,7 @@ double Vehicle::_max_accel_for_lane(map<int, vector<vector<double> > > predictio
 
 	double delta_v_til_target = target_speed - v;
 	double max_acc = std::min(max_acceleration, delta_v_til_target);
-
+	
 	map<int, vector<vector<double> > >::iterator it = predictions.begin();
 	vector<vector<vector<double> > > in_front;
 	while (it != predictions.end())
@@ -311,6 +334,8 @@ double Vehicle::_max_accel_for_lane(map<int, vector<vector<double> > > predictio
 
 		vector<vector<double> > v = it->second;
 
+		//cout << "max acc. for lane, pred size: " << v.size() << endl;
+
 		if ((v[0][0] == lane) && (v[0][1] > s))
 		{
 			in_front.push_back(v);
@@ -318,7 +343,7 @@ double Vehicle::_max_accel_for_lane(map<int, vector<vector<double> > > predictio
 		}
 		it++;
 	}
-
+	
 	if (in_front.size() > 0)
 	{
 		double min_s = 1000.0;
@@ -331,16 +356,21 @@ double Vehicle::_max_accel_for_lane(map<int, vector<vector<double> > > predictio
 				leading = in_front[i];
 			}
 		}
-
-		double next_pos = leading[1][1];
-		double my_next = s + this->v;
-		double separation_next = next_pos - my_next;
-		double available_room = separation_next - preferred_buffer;
-		max_acc = std::min(max_acc, available_room);
+		//cout << "leading size" << leading.size() << endl;
+		if (leading.size() > 0) {
+			double next_pos = leading[0][1];
+			if (leading.size() > 1) {
+				next_pos = leading[1][1];
+			}
+			double my_next = s + this->v;
+			double separation_next = next_pos - my_next;
+			double available_room = separation_next - preferred_buffer;
+			max_acc = std::min(max_acc, available_room);
+		}		
 	}
-
+	
 	return max_acc;
-
+	
 }
 
 void Vehicle::realize_keep_lane(map<int, vector< vector<double> > > predictions) {
@@ -361,19 +391,34 @@ void Vehicle::realize_lane_change(map<int, vector< vector<double> > > prediction
 }
 
 void Vehicle::realize_prep_lane_change(map<int, vector<vector<double> > > predictions, string direction) {
+
+	/*
+	Need heirarchy logic here:
+		1. Look at cars in goal lane.
+		2. See if the gap is large enough, then pick that car to marge ahead (set goal_s).
+		3. Adjust speed to match goal_s, or lead car minus a buffer.
+		4. Check if Danger Close (pacing a car in current lane) 
+			a. If new acceleration results in velocity > car ahead
+			b. Then override acc to match car ahead	
+	*/
+
 	int delta = 1;
 	if (direction.compare("L")==0)
 	{
 		delta = -1;
 	}
-	int lane = this->lane + delta;
+	int current_lane = this->lane;
+	int lane = current_lane + delta;
 
 	map<int, vector<vector<double> > >::iterator it = predictions.begin(); // This is why predictions need to be removed before
 	vector<vector<vector<double> > > at_behind;
+	
 	while (it != predictions.end())
 	{
 		int v_id = it->first;
 		vector<vector<double> > v = it->second;
+
+		//cout << "PLC vid " << v_id << " in lane: " << v[0][0] << " at s: " << v[0][1] << " ego_s: " << this->s << " ego_lane: " << this->lane << endl;
 
 		if ((v[0][0] == lane) && (v[0][1] <= this->s))   // If car is in the state's lane, and behind ego, then add to behind list
 		{
@@ -396,8 +441,10 @@ void Vehicle::realize_prep_lane_change(map<int, vector<vector<double> > > predic
 			}
 		}
 		double target_vel = nearest_behind[1][1] - nearest_behind[0][1]; // delta_s in one timestep = velocity of that car
+		//cout << "prep lane change " << direction << " to match target v: " << target_vel << endl;
 		double delta_v = this->v - target_vel;	
-		double delta_s = this->s - nearest_behind[0][1];
+		double delta_s = this->s - nearest_behind[0][1] - 3*L;
+		//cout << "delta_v " << delta_v << " delta_s: " << delta_s << endl;
 		if (delta_v != 0)
 		{
 
@@ -419,15 +466,21 @@ void Vehicle::realize_prep_lane_change(map<int, vector<vector<double> > > predic
 			{
 				a = -this->max_acceleration;
 			}
-			this->a = a; //should make sure this is actually happening
+			//cout << "prep lane change acc before: " << this->a << endl;
+			this->a = a;
+			//cout << "prep lane change acc after: " << this->a << endl;
 		}
 		else
 		{
-			double my_min_acc = std::max(-this->max_acceleration, -delta_s); // delta_s is not an acceleration? Might work out as it is /s /s
+			double my_min_acc = std::max((-1*(this->max_acceleration)), -delta_s);
 			this->a = my_min_acc;
 		}
 
 	}
+
+	// Need to watch for car ahead in current lane
+	double current_a = this->_max_accel_for_lane(predictions, current_lane, this->s);
+	if (current_a < this->a) { this->a = current_a; }
 
 }
 
@@ -436,7 +489,7 @@ vector<vector<double> > Vehicle::generate_predictions(double horizon = 10.0) {
 	vector<vector<double> > predictions;
 	for (int i = 0; i < horizon; i++)
 	{
-		vector<double> check1 = state_at(i);
+		vector<double> check1 = state_at(i);		
 		vector<double> lane_s = { check1[0], check1[1] };
 		predictions.push_back(lane_s);
 	}

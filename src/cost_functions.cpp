@@ -1,8 +1,10 @@
 #include <vector>
 #include <math.h>
 #include <functional>
+//#include <iostream>
 #include "vehicle.h"
 #include "cost_functions.h"
+
 //#include "gnuplot_i.hpp" //Gnuplot class handles POSIX-Pipe-communikation with Gnuplot
 
 /**
@@ -22,37 +24,38 @@ double Cost_Functions::calculate_cost(Vehicle vehicle, vector<Vehicle::snapshot>
 	double tot_cost = 0.0;
 	Cost_Functions::TrajectoryData data = get_helper_data(vehicle, trajectory, predictions);
 	double temp_cost = 0.0;
-	temp_cost = change_lane_cost(trajectory, predictions, data);
-	cout << "change lane cost:    " << temp_cost << endl;
+	temp_cost = change_lane_cost(vehicle, trajectory, predictions, data);
+	//cout << "	change lane cost:    " << temp_cost << " prop lane: " << data.proposed_lane << " endlfrgoal " << data.end_lanes_from_goal << endl;
 	tot_cost += temp_cost;
 
 	//tot_cost += distance_from_goal_lane(trajectory, predictions, data);
 
 	temp_cost = inefficiency_cost(vehicle, trajectory, predictions, data);
-	cout << "ineff. lane cost:    " << temp_cost << endl;
+	//cout << "	ineff. lane cost:    " << temp_cost << endl;
 	tot_cost += temp_cost;
 
 	temp_cost = collision_cost(trajectory, predictions, data);
-	cout << "collision lane cost: " << temp_cost << endl;
+	//cout << "	collision lane cost: " << temp_cost << " collision: " << data.collides << " at: " << data.collides_at << endl;
 	tot_cost += temp_cost;
 
 	temp_cost = buffer_cost(trajectory, predictions, data);
-	cout << "buffer cost:         " << temp_cost << endl;
+	//cout << "	buffer cost:         " << temp_cost << endl;
 	tot_cost += temp_cost;
 	
 	return tot_cost;
 }
 
-double Cost_Functions::change_lane_cost(vector<Vehicle::snapshot> trajectory,
+double Cost_Functions::change_lane_cost(Vehicle vehicle, vector<Vehicle::snapshot> trajectory,
 	map<int, vector < vector<double> > > predictions, Cost_Functions::TrajectoryData data) {
 	/* Penalizes lane changes away from goal lane and rewards those towards goal lane*/
+	// This would need to be checked for other scenarios if lanes change (> 3)
 
 	double this_cost = 0.0;
 	int proposed_lanes = data.end_lanes_from_goal;
-	int cur_lanes = trajectory[0].lane;
-
-	if (proposed_lanes > cur_lanes) { this_cost = COMFORT; }
-	if (proposed_lanes < cur_lanes) { this_cost = -COMFORT; }
+	//int cur_lanes = abs(data.proposed_lane - vehicle.goal_lane);
+	double comparitor = proposed_lanes + 0.5; // need to round doubles to integers
+	if ((int)(comparitor) > 0) { this_cost = COMFORT; }
+	if (int(comparitor) == 0) { this_cost = -COMFORT; }
 	
 	return this_cost;
 }
@@ -70,11 +73,14 @@ double distance_from_goal_lane(vector<Vehicle::snapshot> trajectory,
 double Cost_Functions::inefficiency_cost(Vehicle vehicle, vector<Vehicle::snapshot> trajectory,
 	map<int, vector < vector<double> > > predictions, Cost_Functions::TrajectoryData data) {
 	/*Penalizes inefficient moves that result in slower speeds*/
+	for (auto traj : trajectory) {
+		//cout <<"          a,v,s: "<< traj.a << " " << traj.v << " " << traj.s << endl;
+	}
 	double this_cost = 0.0;
 	double speed = data.avg_speed;
 	double target_speed = vehicle.target_speed;
 	//cout << "target_speed and speed " << target_speed << " " << speed << endl;
-	double pct = abs(target_speed - speed) / target_speed;
+	double pct = 100*abs(target_speed - speed) / target_speed;
 	double multiplier = pct*pct;
 	this_cost = multiplier*EFFICIENCY;
 
@@ -87,7 +93,7 @@ double Cost_Functions::collision_cost(vector<Vehicle::snapshot> trajectory,
 	double this_cost = 0.0;
 	//cout << "data.collides: " << data.collides << endl;
 	if (data.collides) {
-		double exponent = pow((double)data.collides_at, 2);
+		double exponent = 0.25*pow((double)data.collides_at, 2);
 		double mult = exp(-exponent);
 		this_cost = mult*COLLISION;
 	}
@@ -100,7 +106,7 @@ double Cost_Functions::buffer_cost(vector<Vehicle::snapshot> trajectory,
 	double this_cost = 0.0;
 	//cout << "closest approach: " << data.closest_approach << endl;  
 	if (data.closest_approach == 0.0) { this_cost = 10 * DANGER; }
-	double t_away = data.closest_approach / data.avg_speed;
+	double t_away = data.closest_approach / abs(data.avg_speed);
 	//cout << "t_away: " << t_away << endl;
 	if (t_away > DESIRED_BUFFER) { this_cost = 0.0; }
 	else {
@@ -126,94 +132,89 @@ Cost_Functions::TrajectoryData Cost_Functions::get_helper_data(Vehicle vehicle, 
 	Vehicle::snapshot first = trajectory[1]; // need the second trajectory! It contains the simulated state
 	Vehicle::snapshot last = trajectory.back();
 
+	bool debugstate = false;
+	//if ((first.state == "LCR") | (first.state == "LCL")) { debugstate = true; cout << "Check " << first.state << endl << endl; }
+	debugstate = false; //comment out to debug
+
 	data.end_distance_to_goal = vehicle.goal_s - last.s; //not used yet
 	data.end_lanes_from_goal = abs(vehicle.goal_lane - last.lane);
 
 	//cout << "goal_lane and last lane: " << vehicle.goal_lane << " " << last.lane << endl;
 	//cout << "end lanes from goal: " << data.end_lanes_from_goal << endl;
 
-	double dt = trajectory.size()-1; // Calibrated with set max speed in simulator, 0.167? should understand the physics of this, affected by other lengths and buffers
+	double dt = trajectory.size()-1;
 
 	data.proposed_lane = first.lane;
-	// Need to clarify proposed lane for preparing lane change to improve cost function performance
-	//if (first.state == "PLCR")	{data.proposed_lane += 1; }
-	//else if (first.state == "PLCL") { data.proposed_lane -= 1; }
 	
 	//cout << "checking proposed lane: " << data.proposed_lane << " for state: " << first.state << endl;
+	//data.avg_speed = (last.s - current_snap.s) / dt;
 	data.avg_speed = (last.s - current_snap.s) / dt;
 	
 	// Initialize collision variables
 	data.closest_approach = 99999;
 	data.collides = false;
+	data.collides_at = -1;
 	
 	//Vehicle::snapshot last_snap = trajectory[0]; //not used
 	
 	// Get filtered predictions by lane
 	map<int, vector<vector<double> > > filtered = filter_predictions_by_lane(predictions, data.proposed_lane);
 
-	// Calculate collision and closest approach. This really needs to be improved	
-	//for (int i = 1; i < PLANNING_HORIZON + 1; i++) {
-		// use lane, s, v, a of each trajectory's snapshot	
-
-		/*
-		//cout << "filtered:" << endl;
-		for (auto car : filtered) {	
-			for (auto pred : car.second) {
-
-				std::cout << "car_id: " << car.first << " in lane: " << pred[0] << " at s:  " << pred[1] << "\n";
-			}			
-		}
-		*/
+	// Calculate collision and closest approach. 
 
 	for (auto car : filtered) {
 		double s_previous;
 		//cout << "car.second.size()" << car.second.size() << endl; //size of s of the current car, should be 10.
-		for (int counter = 0; counter < PLANNING_HORIZON + 1;counter++) {
-			//int counter = 0;
-			vector<vector<double>> pred = car.second;  //assuming we are getting the prediction vector 
-			//get first three predictions
+		vector<vector<double>> pred = car.second;  
+		for (int counter = 1; counter < PLANNING_HORIZON + 1;counter++) {
+			
+			if (counter > 1) {
+				if (debugstate) { oss << "car_id: " << car.first << " in lane: " << pred[counter][0] << " at s:  " << pred[counter][1] << "\n"; }
 
-			if (counter > 0) {
-				//std::cout << "car_id: " << car.first << " in lane: " << pred[counter][0] << " at s:  " << pred[counter][1] << "\n";
 				double s_now = pred[counter][1];
 				//check if collision:
 				//trajectory[i] is snapshot
 				bool vehicle_collides = false;
-				double _s = trajectory[counter].s;
+				double _s = trajectory[counter].s-17.5;
 				double _v = trajectory[counter].v;
 
-				//cout << "s_now,s_prev,_s,_v: " << s_now << " " << s_previous << " " << _s << " " << _v << endl;
+				if (debugstate) { oss << "s_now,s_prev,_s,_v: " << s_now << " " << s_previous << " " << _s << " " << _v << endl; }
 
 				double v_target = s_now - s_previous;
 				if (s_previous < _s) {  //if he was behind ego
-					if (s_now >= (_s-CAR_LENGTH)) { vehicle_collides = true; }  //then if he is now in front (collision happened)
+					if (s_now >= (_s - 2 * CAR_LENGTH)) { vehicle_collides = true; }  //then if he is now in front (collision happened)
 				}
 				if (s_previous > _s) {  //if he was in front
-					if (s_now <= (_s+CAR_LENGTH)) { vehicle_collides = true; } //then if he is now behind, collision happened
+					if (s_now <= (_s + 2 * CAR_LENGTH)) { vehicle_collides = true; } //then if he is now behind, collision happened
 				}
-				if (s_previous == _s) {  //if you are in the same space he was
-					if (v_target <= _v) { vehicle_collides = true; } //then if he was going slower than you, collision happened
+				if (s_previous == _s) {  //if you are now in the same space he was
+					if (v_target <= _v) { vehicle_collides = true; } //then if he was going slower than ego, collision happened
 				}
 
 				//update data struct with collision
 				if (vehicle_collides) {
-					//cout << "COLLISION at " << counter << " in lane: " << pred[counter][0] << " by carid: " << car.first << endl;
+					if (debugstate) { oss << "COLLISION at " << counter << " in lane: " << pred[counter][0] << " by carid: " << car.first << endl; }
 					data.collides = true;
 					data.collides_at = counter;
-				}				
+				}
 
-				double dist = abs(s_now - _s);				
-				
-				if (dist < data.closest_approach) { 
-					//cout << "dist: " << dist << endl;
+				double dist = abs(s_now - _s);
+
+				if (dist < data.closest_approach) {
+					if (debugstate) { oss << "dist: " << dist << endl; }
 					data.closest_approach = dist;
 				}
+				if (data.collides) { cout << oss.str(); }
+				oss.clear();
 			}
+
 			s_previous = pred[counter][1];			
 		} //last_snap = trajectory[counter]; //increment last snapshot ? Not used
 	}
 		
 	//cout <<"dcollides" << data.collides << endl;
+	//dlog.append(oss.str());
+	oss.clear();
 	return data;
 }
 

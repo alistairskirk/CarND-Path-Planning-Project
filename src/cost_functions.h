@@ -10,6 +10,10 @@ using namespace std;
 class Cost_Functions
 {
 public:
+	string dlog;
+
+	ostringstream oss;
+
 	Cost_Functions();
 
 	struct TrajectoryData {
@@ -30,19 +34,19 @@ public:
 	int const COLLISION = pow(10, 6);
 	int const DANGER = 4 * pow(10, 5);
 	int const REACH_GOAL = pow(10, 5);
-	int const COMFORT = pow(12, 4);
+	int const COMFORT = pow(10, 4);
 	int const EFFICIENCY = pow(10, 3);
 
 	double const DESIRED_BUFFER = 1.5; // Number of timesteps
 
-	double const CAR_LENGTH = 5; // assume other vehicles are 5 m long, s is from back of car
+	double const CAR_LENGTH = 10; // assume other vehicles are 5 m long, s is from mid of car
 
-	int const PLANNING_HORIZON = 3;
+	int const PLANNING_HORIZON = 4;
 
 	double calculate_cost(Vehicle vehicle, vector<Vehicle::snapshot> trajectory,
 		map<int, vector < vector<double> > > predictions);
 	
-	double change_lane_cost(vector<Vehicle::snapshot> trajectory,
+	double change_lane_cost(Vehicle vehicle, vector<Vehicle::snapshot> trajectory,
 		map<int, vector < vector<double> > > predictions, TrajectoryData data);
 
 	/* Would implement if you had a goal lane (like need to turn left or right at intersection or exit)

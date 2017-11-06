@@ -162,6 +162,19 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+void gnuplot(Gnuplot &gp, vector<double> gnu_x, vector<double> gnu_y, vector<double> traj_x, vector<double> traj_y) {
+	//gp.set_style("points");
+	gp.set_xrange(-1, 3);
+	gp.set_yrange(-250, 250);
+	gp.set_pointsize(3.0);
+	gp.cmd("set terminal x11 size 300,900");
+	gp.remove_tmpfiles(); // it is always better to do it
+	gp.reset_plot(); // delete the plot (like Matlab figure())								
+	gp.plot_xy(gnu_x, gnu_y);
+	if (traj_x.size() > 0) { gp.plot_xy(traj_x, traj_y); }
+	
+}
+
 int main() {
 	uWS::Hub h;
 
@@ -175,7 +188,7 @@ int main() {
 	// Waypoint map to read from
 	string map_file_ = "../data/highway_map.csv";
 	// The max s value before wrapping around the track back to 0
-	double max_s = 6945.554;
+	double max_s = 6945.554; // is this true? something breaks at 6855.805
 
 	ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -203,9 +216,11 @@ int main() {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 
-	//If plotting for debug
+	//If gnuplotting for debug. Requires Gnuplot-cpp srcd and in CMakelist, and XServer (VcXSrv) running
+
 	bool gnu = false;
 	Gnuplot gp("road_plot");
+	
 	if (gnu) {
 		//gp.set_style("points");
 		gp.set_xrange(-1, 3);
@@ -214,6 +229,8 @@ int main() {
 		gp.cmd("set terminal x11 size 300,900");
 	}
 
+	ofstream dlog("debuglog.txt");
+	
   // Init lane number as middle lane [lanes 0,1,2] as simulator starts here
   int lane = 1;
 
@@ -238,8 +255,8 @@ int main() {
   ego.max_acceleration = MAX_ACCEL;
   ego.goal_lane = goal_lane; // to implement later
   ego.goal_s = goal_s; // to implement later, can be useful in distance tracking  
-  
-  h.onMessage([&gnu,&gp,&t0,&SPEED_LIMIT,&ego,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+    
+  h.onMessage([&dlog,&max_s,&gnu,&gp,&t0,&SPEED_LIMIT,&ego,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -255,25 +272,25 @@ int main() {
         
         string event = j[0].get<string>();
         
-        if (event == "telemetry") {
-          // j[1] is the data JSON object
-          
-        	// Main car's localization Data
-          	double car_x = j[1]["x"];
-          	double car_y = j[1]["y"];
-          	double car_s = j[1]["s"];
-          	double car_d = j[1]["d"];
-          	double car_yaw = j[1]["yaw"];
-          	double car_speed = j[1]["speed"];
+		if (event == "telemetry") {
+			// j[1] is the data JSON object
 
-          	// Previous path data given to the Planner
-          	auto previous_path_x = j[1]["previous_path_x"];
-          	auto previous_path_y = j[1]["previous_path_y"];
-          	// Previous path's end s and d values 
-          	double end_path_s = j[1]["end_path_s"];
-          	double end_path_d = j[1]["end_path_d"];
+			  // Main car's localization Data
+			double car_x = j[1]["x"];
+			double car_y = j[1]["y"];
+			double car_s = j[1]["s"];
+			double car_d = j[1]["d"];
+			double car_yaw = j[1]["yaw"];
+			double car_speed = j[1]["speed"];
 
-          	// Sensor Fusion Data, a list of all other cars on the same side of the road.
+			// Previous path data given to the Planner
+			auto previous_path_x = j[1]["previous_path_x"];
+			auto previous_path_y = j[1]["previous_path_y"];
+			// Previous path's end s and d values 
+			double end_path_s = j[1]["end_path_s"];
+			double end_path_d = j[1]["end_path_d"];
+
+			// Sensor Fusion Data, a list of all other cars on the same side of the road.
 			/*
 			0 - unique car ID
 			1 - x in map coordinates
@@ -284,10 +301,10 @@ int main() {
 			6 - d position frenet
 			*/
 			auto sensor_fusion = j[1]["sensor_fusion"];
-			
+
 			//Define previous path size to help during transition
 			int prev_size = previous_path_x.size();
-			
+
 			// Create Behaviour Planning Logic
 			//double MIN_GAP = 30.0; // 30 m buffer between cars ahead in lane
 			//double SPEED_LIMIT = 49.5;
@@ -304,33 +321,33 @@ int main() {
 			//Ego Car stats update
 			ego.s = car_s;
 			ego.s -= 17; // This calibration is needed as it appears the car's S data is offset
-
-			//cout << "ego stats:\n" << ego.display() << endl;	
 			
+			dlog << "ego stats:\n" << ego.display() << endl;	
+
 			auto t1 = std::chrono::high_resolution_clock::now();
 			auto dt = 1.e-9*std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
-			
+
 			vector<double> gnu_x;
 			gnu_x.push_back((double)ego.lane);
 			vector<double> gnu_y;
-			gnu_y.push_back(ego.s - ego.s);		
+			gnu_y.push_back(ego.s - ego.s);
 			//vector<string> labels;
 			//labels.push_back("ego");
 
 			// Create list of vehicles from sensor fusion data, and a list of predictions
 			vector<Vehicle> other_cars;
-			map<int, vector < vector<double> > > all_preds;	
+			map<int, vector < vector<double> > > all_preds;
 
 			for (int i = 0;i < sensor_fusion.size();i++)
 			{
 				//Need to ensure only valid vehicles detected, 0 < d < 50 meters:
 				if ((sensor_fusion[i][6] > 0) & (sensor_fusion[i][6] < 50))
-				{	
+				{
 
 					//Vehicle Constructor: lane,s,v,a
 					double vx = sensor_fusion[i][3];
 					double vy = sensor_fusion[i][4];
-					double other_s = sensor_fusion[i][5];					
+					double other_s = sensor_fusion[i][5];
 					double other_d = sensor_fusion[i][6];
 					double other_v = sqrt(vx*vx + vy*vy);
 					//cout << "otherD: " << other_d << endl;
@@ -341,61 +358,74 @@ int main() {
 					//cout << "\n***\n" << other.display() << endl;
 
 					// create predictions for future timesteps of this car.
-					vector<vector<double> > other_preds = other.generate_predictions(10.0);
+					
+					vector<vector<double> > other_preds = other.generate_predictions(10.0); // s could be greater than max_s here
+					
 					// Add to master list of predictions
 					all_preds[other.id] = other_preds; //might break if other ids get mixed up or duplicated
 					
 					//Add to sensed cars list
 					other_cars.push_back(other);
 				}
-				
-			}
 
-			for (auto this_car : other_cars)
-			{
-				//cout << "preds for carid: " <<other.id << " at i: "<< i<< " lane: " << other_preds[i][0] << " s: " << other_preds[i][1] << endl;
-				if (abs(this_car.s - ego.s) <= 200) {
-					gnu_x.push_back((double)this_car.lane);
-					gnu_y.push_back(this_car.s - ego.s);
-					//labels.push_back(std::to_string(this_car.lane) + "," + to_string(this_car.s - ego.s));
+			}
+			
+
+			if (gnu) {
+				for (auto this_car : other_cars)
+				{
+					//cout << "preds for carid: " <<other.id << " at i: "<< i<< " lane: " << other_preds[i][0] << " s: " << other_preds[i][1] << endl;
+					if (abs(this_car.s - ego.s) <= 200) {
+						gnu_x.push_back((double)this_car.lane);
+						gnu_y.push_back(this_car.s - ego.s);
+						//labels.push_back(std::to_string(this_car.lane) + "," + to_string(this_car.s - ego.s));
+					}
 				}
 			}
 
 			// Build Trajectories
-			vector<double> traj_x;			
+			vector<double> traj_x;
 			vector<double> traj_y;
 
 			for (auto this_car : all_preds) {
 				for (auto pred : this_car.second) {
 					traj_x.push_back(pred[0]);
-					traj_y.push_back(pred[1]-ego.s);
+					traj_y.push_back(pred[1] - ego.s); // here the predicted s could be larger than max_s
 				}
 			}
-
-
-			//Plot refresh every second
-			
-			if (((int)dt % 1 == 0)&gnu) {
-				//gp.remove_tmpfiles(); // it is always better to do it
-				gp.reset_plot(); // delete the plot (like Matlab figure())				
-				//gp.plot_xy_labels(gnu_x, gnu_y,labels);
+						
+			//Plot refresh every x seconds
+			/*
+			if (((int)dt % 5 == 0)&gnu) {
+				gp.remove_tmpfiles(); // it is always better to do it
+				gp.reset_plot(); // delete the plot (like Matlab figure())								
 				gp.plot_xy(gnu_x, gnu_y);
 				if (traj_x.size() > 0) { gp.plot_xy(traj_x, traj_y); }
 
 			}
-
-			// Update state of ego vehicle using other vehicle predictions
-
-			ego.update_state(all_preds);
-
-			//cout << "begin main driving logic" << endl;
-			//cout << "number of other cars: " << other_cars.size() << endl;
+			*/
+			//if (gnu) { thread gnu_thread(gnuplot, ref(gp), gnu_x, gnu_y, traj_x, traj_y); }
 			
-			ego.realize_state(all_preds);
-			ego.v = ego.v + ego.a*0.02;
+			// Update state of ego vehicle using other vehicle predictions
+			double buffer = 0;
+			if ((ego.s>buffer)&(ego.s< (max_s-buffer))) {
+				ego.update_state(all_preds);
+								
+				//cout << "begin main driving logic" << endl;
+				//cout << "number of other cars: " << other_cars.size() << endl;
 
+			}
+			else { ego.state = "KL"; }
+
+			dlog << ego.dlog;
+			
+			// Enact the state, altering acceleration
+			ego.realize_state(all_preds);
+								
+			ego.v = ego.v + ego.a*0.02; // adjust speed using the realized acceleration and timestep (0.02)
+			
 			// Print out car status
-			//cout << "ego stats: " << ego.display() << endl;					
+			dlog << "ego stats: " << ego.display() << endl << "*** *** ***" << endl;					
 
           	json msgJson;
 
@@ -412,12 +442,12 @@ int main() {
 			// Create reference x,y, yaw states:
 			double ref_x = car_x;
 			double ref_y = car_y;
-			double ref_yaw = deg2rad(car_yaw); // in radians, consider 2*pi normalization?
+			double ref_yaw = deg2rad(car_yaw); 
 
 			// if previous size is almost empty use the car as the starting point:
 			if (prev_size < 2)
 			{
-				// Use points that are tandent to the car's current direction
+				// Use points that are tangent to the car's current direction
 				double prev_car_x = car_x - cos(car_yaw);
 				double prev_car_y = car_y - sin(car_yaw);
 
@@ -439,10 +469,10 @@ int main() {
 
 				double ref_x_prev = previous_path_x[prev_size - 2];
 				double ref_y_prev = previous_path_y[prev_size - 2];
-
+				
 				// calculate heading based on last two points:
 				ref_yaw = atan2(ref_y - ref_y_prev, ref_x - ref_x_prev);
-
+								
 				// Add to sparse points list x and y
 				ptsx.push_back(ref_x_prev);
 				ptsx.push_back(ref_x);
@@ -455,7 +485,6 @@ int main() {
 			// Init spacing between spline points in meters. Adjusts agressiveness of lane changes proportional to speed, smoother at higher speeds.
 			int s_space = 30 + (1-(SPEED_LIMIT - ego.v)/SPEED_LIMIT)*25; 
 			
-
 			// If we must prepare a lane change, calculate trajectories with cost functions and select best trajectory
 			/*if (prep_lc)
 			{			
@@ -548,6 +577,7 @@ int main() {
           	//this_thread::sleep_for(chrono::milliseconds(1000));
           	ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
           
+			//if (gnu) { gnu_thread.join(); }
         }
       } else {
         // Manual driving
