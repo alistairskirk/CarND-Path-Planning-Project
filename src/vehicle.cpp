@@ -59,7 +59,7 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 
 	*/
 
-	// Tie into trajectory planning and cost functions, set state
+	// Ties into trajectory planning and cost functions, set state
 
 	// state = "KL"; // this is an example of how you change state.
 	
@@ -126,28 +126,29 @@ void Vehicle::update_state(map<int, vector < vector<double> > > predictions) {
 	double mincost = pow(10,9);
 	state = "KL";
 
-	// Print costs map for debug
-	oss << "costs map: " << endl;
+	// Calculate costs map
+	
+	//oss << "costs map: " << endl;
 	for (auto &i : costs) {
 		if (i.second < mincost) {
 			mincost = i.second;
 			state = i.first;
 		}
-		oss << i.first << " " << i.second << endl;
-		cout << i.first << " " << i.second << endl;
+		//oss << i.first << " " << i.second << endl;
+		//cout << i.first << " " << i.second << endl;
 	}
-	
+		
 	//For KL for debug
 	//state = "KL";
 			
-	//Selected state with minimum cost
+	//Output selected state with minimum cost
+	/*
 	oss << "chosen state: " << state << " at cost: " << mincost << endl;
 	cout << "chosen state: " << state << " at cost: " << mincost << endl << endl;
-	
-	// if all costs are zero or equal, default is keep lane.
-	
+	*/
+		
 	//dlog.append(oss.str());
-	oss.clear();
+	//oss.clear();
 
 }
 
@@ -164,6 +165,7 @@ vector<Vehicle::snapshot> Vehicle::_trajectory_for_state(string state, map<int, 
 	vector<Vehicle::snapshot> trajectory;
 	trajectory.push_back(start_snap);
 
+	// Debug the predictions
 	/*for (auto car : predictions) 
 	{
 		std::cout << "prior to remove carid: " << car.first << endl;
@@ -173,7 +175,7 @@ vector<Vehicle::snapshot> Vehicle::_trajectory_for_state(string state, map<int, 
 	}*/
 
 	//cout << "begin iterate" << endl;
-	// interate to the horizon and add states to trajectory vector
+	// iterate to the horizon and add states to trajectory vector
 	for (int i = 0; i < horizon; i++)
 	{
 		//need to remove first prediction for each vehicle
@@ -393,6 +395,9 @@ void Vehicle::realize_lane_change(map<int, vector< vector<double> > > prediction
 void Vehicle::realize_prep_lane_change(map<int, vector<vector<double> > > predictions, string direction) {
 
 	/*
+	INCOMPLETE - this has been difficult to implement, test, and debug with the restricted random simulator traffic.
+	Adapted from Udacity Course example.
+
 	Need heirarchy logic here:
 		1. Look at cars in goal lane.
 		2. See if the gap is large enough, then pick that car to marge ahead (set goal_s).

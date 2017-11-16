@@ -3,14 +3,14 @@
 #include <uWS/uWS.h>
 #include <chrono>
 #include <iostream>
-#include <thread>
+//#include <thread>
 #include <vector>
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include "spline.h"
 #include "vehicle.h"
-#include "gnuplot-cpp/gnuplot_i.hpp"
+//#include "gnuplot-cpp/gnuplot_i.hpp"
 
 using namespace std;
 
@@ -162,6 +162,7 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+/* Disabling gnuplot for submission
 void gnuplot(Gnuplot &gp, vector<double> gnu_x, vector<double> gnu_y, vector<double> traj_x, vector<double> traj_y) {
 	//gp.set_style("points");
 	gp.set_xrange(-1, 3);
@@ -174,6 +175,7 @@ void gnuplot(Gnuplot &gp, vector<double> gnu_x, vector<double> gnu_y, vector<dou
 	if (traj_x.size() > 0) { gp.plot_xy(traj_x, traj_y); }
 	
 }
+*/
 
 int main() {
 	uWS::Hub h;
@@ -216,8 +218,9 @@ int main() {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 
-	//If gnuplotting for debug. Requires Gnuplot-cpp srcd and in CMakelist, and XServer (VcXSrv) running
-
+	//If gnuplotting for debug. Requires Gnuplot-cpp sourced and in CMakelist, and XServer (VcXSrv) running, and pass &gnu,&gp to h.onMsg
+	//Warning of severe lag when using this due to gnuplot cmd line outputs and tempfiles lagging the simulator response.
+	/*disabling for submission
 	bool gnu = false;
 	Gnuplot gp("road_plot");
 	
@@ -228,7 +231,7 @@ int main() {
 		gp.set_pointsize(3.0);
 		gp.cmd("set terminal x11 size 300,900");
 	}
-
+	*/
 	ofstream dlog("debuglog.txt");
 	
   // Init lane number as middle lane [lanes 0,1,2] as simulator starts here
@@ -251,12 +254,12 @@ int main() {
   Vehicle ego(lane, 0.0, ref_vel, ref_acc);
   ego.target_speed = SPEED_LIMIT; // in m/s
   ego.lanes_available = numlanes;
-  //ego.lane = lane;
+  
   ego.max_acceleration = MAX_ACCEL;
-  ego.goal_lane = goal_lane; // to implement later
+  ego.goal_lane = goal_lane; // Target the middle lane to maximize options
   ego.goal_s = goal_s; // to implement later, can be useful in distance tracking  
     
-  h.onMessage([&dlog,&max_s,&gnu,&gp,&t0,&SPEED_LIMIT,&ego,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&dlog,&max_s,&t0,&SPEED_LIMIT,&ego,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -304,14 +307,7 @@ int main() {
 
 			//Define previous path size to help during transition
 			int prev_size = previous_path_x.size();
-
-			// Create Behaviour Planning Logic
-			//double MIN_GAP = 30.0; // 30 m buffer between cars ahead in lane
-			//double SPEED_LIMIT = 49.5;
-			//double target_speed = SPEED_LIMIT;
-			bool too_close = false;
-			bool prep_lc = false;
-
+						
 			//if there is a previous path, set the current s value to the end of that path for continuity
 			if (prev_size > 0)
 			{
@@ -327,12 +323,15 @@ int main() {
 			auto t1 = std::chrono::high_resolution_clock::now();
 			auto dt = 1.e-9*std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
 
+			// If using gnuplot to visualize car data, create x and y vectors
+			/*Disabling for submission
 			vector<double> gnu_x;
 			gnu_x.push_back((double)ego.lane);
 			vector<double> gnu_y;
 			gnu_y.push_back(ego.s - ego.s);
 			//vector<string> labels;
 			//labels.push_back("ego");
+			*/
 
 			// Create list of vehicles from sensor fusion data, and a list of predictions
 			vector<Vehicle> other_cars;
@@ -370,7 +369,7 @@ int main() {
 
 			}
 			
-
+			/*Disabling for submission
 			if (gnu) {
 				for (auto this_car : other_cars)
 				{
@@ -382,6 +381,7 @@ int main() {
 					}
 				}
 			}
+			*/
 
 			// Build Trajectories
 			vector<double> traj_x;
@@ -394,7 +394,7 @@ int main() {
 				}
 			}
 						
-			//Plot refresh every x seconds
+			//GnuPlot refresh every x seconds
 			/*
 			if (((int)dt % 5 == 0)&gnu) {
 				gp.remove_tmpfiles(); // it is always better to do it
@@ -424,8 +424,8 @@ int main() {
 								
 			ego.v = ego.v + ego.a*0.02; // adjust speed using the realized acceleration and timestep (0.02)
 			
-			// Print out car status
-			dlog << "ego stats: " << ego.display() << endl << "*** *** ***" << endl;					
+			// Print out car status for debug
+			//dlog << "ego stats: " << ego.display() << endl << "*** *** ***" << endl;					
 
           	json msgJson;
 
@@ -485,12 +485,8 @@ int main() {
 			// Init spacing between spline points in meters. Adjusts agressiveness of lane changes proportional to speed, smoother at higher speeds.
 			int s_space = 30 + (1-(SPEED_LIMIT - ego.v)/SPEED_LIMIT)*25; 
 			
-			// If we must prepare a lane change, calculate trajectories with cost functions and select best trajectory
-			/*if (prep_lc)
-			{			
-				ego.lane = 0;
-				prep_lc = 0;
-			}*/
+			// Create spacing using spline nodes, the nodes are spaced proportional to car speed to ensure smoothness in the simulator
+			
 			vector<double> next_mp0 = getXY(ego.s + s_space * 1, (2 + 4 * ego.lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 			vector<double> next_mp1 = getXY(ego.s + s_space * 2, (2 + 4 * ego.lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 			vector<double> next_mp2 = getXY(ego.s + s_space * 3, (2 + 4 * ego.lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
