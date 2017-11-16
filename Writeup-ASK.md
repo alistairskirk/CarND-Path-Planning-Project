@@ -26,7 +26,9 @@ The majority of the Path Planning theory and code style was adapted from the Uda
 From the Path Planning module the general FSM layout is shown below:
 ![FSM][FSM]
 
-The project uses the above FSM logic to create a set of paths for the ego vehicle, that are then stitched together as a series of coordinates using cubic spline interpolation (using available [spline.h](http://kluge.in-chemnitz.de/opensource/spline/) code). The knots of the spline are spaced according to the ego vehicle's speed to ensure smooth transitions between paths, and to minimize jerk and max acceleration. A drawback in the simulator is that it measures max jerk and acceleration over a single timestep (0.2) seconds, and there are very rare cases where the jerk limit will be exceeded, for example if the ego vehicle is attempting to make a lane change across two lanes at maximum speed while also turning on a sharp corner.
+The project uses the above FSM logic to create a set of paths for the ego vehicle, that are then stitched together as a series of coordinates using cubic spline interpolation (using available [spline.h](http://kluge.in-chemnitz.de/opensource/spline/) code). The knots of the spline are spaced according to the ego vehicle's speed to ensure smooth transitions between paths, and to minimize jerk and max acceleration.
+
+A drawback in the Term 3 Simulator is that it appears to measure max jerk and acceleration over a single timestep (0.2 seconds), and there are very rare cases where the jerk limit will be exceeded, for example if the ego vehicle is attempting to make a lane change across two lanes at maximum speed while also turning on a sharp corner.
 
 The ego vehicle transitions between the states by minimizing a set of calculated Cost Functions, that determine the most optimal state to be in. As shown in the figure, after being 'ready', the vehicle will try to keep its desired lane, and perform lane changes corresponding to the selected least cost function. The state and cost function calculation are discussed next.
 
@@ -39,7 +41,9 @@ The ego vehicle will maintain the desired target speed (just under the preset le
 
 In this state the ego vehicle determines the cost of committing a lane change, and increases the cost if there are vehicles nearby in that lane, which discourages lane changes that could result in collisions. This state logic works correctly for the majority of the driving in the simulator, and results in smooth transitions between lanes.
 
-There are rare occasions in this code where the lane change algorithm initially detects collision avoidance in the adjacent lane, but sees that the second lane over is clear (for example going from lane 3 to lane 1, while another vehicle is in lane 2 travelling at the same speed as ego vehicle), and creates a path that either comes very close to a collision with the adjacent vehicle, or just grazes the vehicle. This error in logic has proven very difficult to debug because it is rare to occur in the simulator, and there is a significant amount of data needed to investigate and resolve the issue. Future improvements to the simulator would include an ability to set up test cases, allowing the user to dictate how many cars are on the road and what speeds they travel, whether they change lanes, etc. The current implementation of the code works for the rubric of this course, but will eventually fail if left to run infinitely.
+There are rare occasions in this code where the lane change algorithm initially detects collision avoidance in the adjacent lane, but sees that the second lane over is clear (for example going from lane 3 to lane 1, while another vehicle is in lane 2 travelling at the same speed as ego vehicle), and creates a path that either comes very close to a collision with the adjacent vehicle, or just grazes the vehicle. 
+
+This error in logic has proven very difficult to debug because it is rare to occur in the simulator, and there is a significant amount of data needed to investigate and resolve the issue. Future improvements to the simulator would include an ability to set up test cases, allowing the user to dictate how many cars are on the road and what speeds they travel, whether they change lanes, etc. The current implementation of the code works for the rubric of this course, but will eventually fail if left to run infinitely.
 
 #### Prepare for Lane Change Left and Right (PLCR / PLCL)
 
@@ -82,10 +86,10 @@ Once the lane and acceleration for the given timestep is realized, the ego vehic
 ego.v = ego.v + ego.a*0.02;
 ```
 
-Finally, the ego vehicle trajectory are generated as a set of x and y global points, stitching the last timestep endpoint for smoothing, and using cubic spline interpolation.
+Finally, the ego vehicle trajectory is generated as a set of x and y global points, stitching the last timestep endpoint for smoothing, and using cubic spline interpolation.
 
 
-### vehicle.cpp / vehicle.here
+### vehicle.cpp / vehicle.h
 
 A Vehicle Class is created as a template for not only the ego vehicle but also the other vehicles on the road. 
 
@@ -95,7 +99,7 @@ The state with the minimum cost is selected as the desired state to realize.
 
 Potential future improvements on this project would use the Vehicle class for the other vehicles to perform the collision detection as the current implementation relies on a vector of trajectories, and is a little confusing at times to debug.
 
-### cost_functions.cpp / cost_functions.here
+### cost_functions.cpp / cost_functions.h
 
 A Cost Function class was developed to calculate the cost for a given state and set of predicted trajectories.
 The cost function header file contains the priority levels used in calculating how costly a proposed path is:
@@ -103,7 +107,6 @@ The cost function header file contains the priority levels used in calculating h
 	// priority levels for costs
 	int const COLLISION = pow(10, 6);
 	int const DANGER = 4 * pow(10, 5);
-	int const REACH_GOAL = pow(10, 5);
 	int const COMFORT = pow(10, 4);
 	int const EFFICIENCY = pow(10, 3);
 ```
@@ -111,16 +114,16 @@ The cost function header file contains the priority levels used in calculating h
 The total cost for a proposed path is made from the addition of four cost types:
 
 #### Change Lane
-Penalizes lane changes away from goal lane and rewards those towards goal lane.
+Penalizes lane changes away from goal lane and rewards those towards goal lane. Uses the COMFORT priority level.
 
 #### Inefficiency of Lane Change
-Penalizes inefficient trajectories that result in slower speeds.
+Penalizes inefficient trajectories that result in slower speeds. Uses the EFFICIENCY priority level.
 
 #### Collision
-If there is an impending collision, increase cost using an exponential function, depending on timing.
+If there is an impending collision, increase cost using an exponential function, depending on timing. Uses the COLLISION priority level.
 
 #### Buffer
-Penalize trajectories that result in being closer than a DESIRED_BUFFER length to other vehicles in the proposed lane.
+Penalize trajectories that result in being closer than a DESIRED_BUFFER length to other vehicles in the proposed lane. Uses the DANGER priority level.
 
 The total cost for the given state and trajectories is then passed back to the vehicle class for further processing.
 
@@ -133,3 +136,9 @@ Latency was expected in the communication between the path planner and the simul
 An attempt was made to try and debug using a graphical output to GnuPlot, which helped identify that there was an approximate 1 second, or 17 meter, offset of where the ego vehicle was showing, and what the sensor fusion data sent in for that timestep. This affected all aspects of the path planner including collision detection, spline interpolation. Adjusting the ego vehicles sensed `s` value in Frenet coordinates, by subtracting 17 m at each timestep, seemed to better match up the code data to the simulator in real time. Using GnuPlot was helpful, but limitied, because it introduced a significant lag in the processing time, which further increased latency.
 
 A recommendation for future simulators would be to allow a graphical overlay or output of any image, text, or 2d graph that we feed into the simultor. The ability to see the data, as seen by simulator, in real time would have helped incredibly during debugging.
+
+## Close-out
+
+Overall this was the most challenging project to date, as it incorporated a significant number of new concepts, and a lot of code development and learning was left to the student. While this is useful in providing a strong sense of accomplishment once complete, the amount of time required to complete this project was far more than typically alotted for previous projects. It is obvious now that Behaviour Path Planning is one of the most complicated and challenging aspects of developing autonomous vehicles; from differences in timescales, to latency, to any number of places where bugs arise in logic and are very difficult to debug without a good simulator.
+There are many opportunities for improvement in this code, but I am confident that this is a solveable engineering problem.
+
